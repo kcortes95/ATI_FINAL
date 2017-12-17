@@ -19,7 +19,7 @@ def predict(test_img, face_recognizer, subjects):
 
     for i, face in enumerate(faces):
         label, confidence = face_recognizer.predict(face)
-        print("x: " + str(rects[i][0]) + " y: " + str(rects[i][1]) + " confidence: " + str(confidence))
+        print("x: %s y: %s confidence: %s label: %s" % (str(rects[i][0]), str(rects[i][1]), str(confidence), subjects[label]))
         if confidence < 60:
             if subjects[label] not in predicted_rects or predicted_rects[subjects[label]][0] > confidence:
                 predicted_rects[subjects[label]] = (confidence, rects[i])
