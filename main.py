@@ -4,17 +4,35 @@ import numpy as np
 
 subjects = ["", "Ramiz Raja", "Elvis Presley", "Kevin Cortes"]
 
+
 def detect_face(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    face_cascade = cv2.CascadeClassifier('opencv-files/lbpcascade_frontalface.xml')
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5);
+    face_cascade = cv2.CascadeClassifier('opencv-files/haarcascade_frontalface_alt.xml')
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5)
 
-    if (len(faces) == 0):
+    if len(faces) == 0:
         return None, None
 
     (x, y, w, h) = faces[0]
 
     return gray[y:y+w, x:x+h], faces[0]
+
+
+def detect_all_faces(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    face_cascade = cv2.CascadeClassifier('opencv-files/haarcascade_frontalface_alt.xml')
+    rects = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5)
+
+    if len(rects) == 0:
+        return None, None
+
+    faces = [None] * len(rects)
+    for i, rect in enumerate(rects):
+        (x, y, w, h) = rects[i]
+        faces[i] = gray[y:y+w, x:x+h]
+
+    return faces, rects
+
 
 def prepare_training_data(data_folder_path):
 
@@ -25,7 +43,7 @@ def prepare_training_data(data_folder_path):
 
     for dir_name in dirs:
         if not dir_name.startswith("s"):
-            continue;
+            continue
 
         label = int(dir_name.replace("s", ""))
         subject_dir_path = data_folder_path + "/" + dir_name
@@ -34,7 +52,7 @@ def prepare_training_data(data_folder_path):
         for image_name in subject_images_names:
 
             if image_name.startswith("."):
-                continue;
+                continue
 
             image_path = subject_dir_path + "/" + image_name
 
@@ -65,24 +83,30 @@ print("Total labels: ", len(labels))
 face_recognizer = cv2.face.LBPHFaceRecognizer_create()
 face_recognizer.train(faces, np.array(labels))
 
+
 def draw_rectangle(img, rect):
     (x, y, w, h) = rect
     cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
+
 def draw_text(img, text, x, y):
     cv2.putText(img, text, (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, (0, 255, 0), 2)
 
+
 def predict(test_img):
     img = test_img.copy()
-    face, rect = detect_face(img)
+    faces, rects = detect_all_faces(img)
 
-    label, confidence = face_recognizer.predict(face)
-    label_text = subjects[label]
+    for i, face in enumerate(faces):
+        label, confidence = face_recognizer.predict(face)
+        print("x: " + str(rects[i][0]) + " y: " + str(rects[i][1]) + " confidence: " + str(confidence))
+        label_text = subjects[label]
 
-    draw_rectangle(img, rect)
-    draw_text(img, label_text, rect[0], rect[1]-5)
+        draw_rectangle(img, rects[i])
+        draw_text(img, label_text, rects[i][0], rects[i][1]-5)
 
     return img
+
 
 print("Predicting images...")
 
