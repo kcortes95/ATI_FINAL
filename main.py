@@ -1,6 +1,6 @@
 from functions import *
 
-subjects = ["", "Ramiz Raja", "Elvis Presley", "Kevin Cortes"]
+subjects = ["", "Ramiz Raja", "Elvis Presley", "Kevin Cortes", "Lucas Casagrande"]
 
 print("Preparing data...")
 faces, labels = prepare_training_data("training-data")
@@ -14,12 +14,11 @@ face_recognizer.train(faces, np.array(labels))
 
 print("Predicting images...")
 
-test_img3 = cv2.imread("test-data/test3.jpg")
+test_img = cv2.imread("test-data/compile.jpg")
 
-predicted_img3 = predict(test_img3, face_recognizer, subjects)
+predicted_img = predict(test_img, face_recognizer, subjects)
 print("Prediction complete")
 
-size_ratio = predicted_img3.shape[0] / predicted_img3.shape[1]
-cv2.imshow(subjects[3], cv2.resize(predicted_img3, (600, int(600*size_ratio) )))
+size_ratio = predicted_img.shape[0] / predicted_img.shape[1]
+cv2.imshow(subjects[4], cv2.resize(predicted_img, (600, int(600*size_ratio) )))
 cv2.waitKey(0)
-
