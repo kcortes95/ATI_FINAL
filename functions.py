@@ -91,5 +91,7 @@ def prepare_training_data(data_folder_path):
             if face is not None:
                 faces.append(face)
                 labels.append(label)
+            else:
+                print("image %s doesn't have a face" % image_path)
 
     return faces, labels
